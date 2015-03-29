@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block title %}{{title}}{% endblock %}
+{% block head %}
+  {{ super() }}
+{% endblock %}
+{% block page %}{{title}}{% endblock %}
+{% block heading %}
+  {{ super() }}
+{% endblock %}
+{% block content %}
+  {% if failedServers %}
+  <h3> The following URL's failed to load!</h3>
+  <ul class="list-unstyled" id = "failedServers">
+    {% for server in failedServers %}
+    <li>{{server}}</li>
+    {% endfor %}
+  {% endif %}
+  </ul>
+  <br>
+  <br>
+  <br>
+  <!-- <p>Same list with a filter: {{ my_list|join(', ') }}</p> -->
+  {% block footer %}
+  {{super()}}
+  {% endblock %}
+{% endblock %}

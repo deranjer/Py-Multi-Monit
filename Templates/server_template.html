@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+{% block title %}{{title}}{% endblock %}
+{% block head %}
+  {{ super() }}
+{% endblock %}
+{% block page %}{{title}}{% endblock %}
+{% block heading %}
+  {{ super() }}
+{% endblock %}
+{% block content %}
+  <h3>Responding Server List</h3>
+  <table class="table table-striped">
+      <tr>
+          <th>Server IP</th>
+          <th>Total Services</th>
+          <th>Services Down</th>
+      </tr>
+  {% for server in respondingServers %}
+  <tr>
+      <td><img src="greenDot.gif">{{server}}</td>
+      <td>12</td>
+      <td>12</td>
+  </tr>
+  {%endfor%}
+  </table>
+  <br>
+  <br>
+  <br>
+  <!-- <p>Same list with a filter: {{ my_list|join(', ') }}</p> -->
+  {% block footer %}
+  {{super()}}
+  {% endblock %}
+{% endblock %}
