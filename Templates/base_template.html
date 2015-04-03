@@ -16,7 +16,13 @@
     {% endfor %}
   {% endif %}
   </ul>
-  <br>
+  {% if errorConditions %}
+  <h3>Errors Reported: </h3>
+  <ul class="list-unstyled" id = "errorConditions">
+      {% for keys,values in errorConditions.items() %}
+      <li>{{keys}}-->{{values}}</li>
+      {% endfor %}
+  {% endif %}
   <br>
   <br>
   <!-- <p>Same list with a filter: {{ my_list|join(', ') }}</p> -->

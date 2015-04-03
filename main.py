@@ -1,14 +1,14 @@
 __author__ = 'deranjer'
 
 import bs4
-import untangle
-import xmltodict
 import datetime
 import urllib
 import pprint
+import xml.etree.ElementTree as ET
 from Settings import serverList
 from flask import Flask, render_template, redirect
 app = Flask(__name__)
+
 
 #Generate list of servers from config file
 #for now fake file
@@ -30,20 +30,47 @@ parsedXML = []
 failedServers = []
 for URL in APIURL:
     try:
+        print("URL", URL)
         file = urllib.request.urlopen(URL) #opening the XML URL
-        data = file.read()
-        file.close()
-        list.append(parsedXML, xmltodict.parse(data)) #Parsing to dict the XML file created
+        list.append(parsedXML, ET.parse(file)) #Parsing to dict the XML file created
     except:
         list.append(failedServers, URL)
 
 respondingServers = []
 for server in parsedXML:
-    list.append(respondingServers, server["monit"]["server"]["httpd"]["address"])
+    address = server.find('./server//httpd//')
+    list.append(respondingServers, address.text)
+
+
+notMonitored = []
+errorConditionsL = {}
+errorConditionsD = {}
+for server in parsedXML:
+    address = server.find('./server//httpd//')
+    for service in server.findall('service'):
+        name = service.find('name')
+        monitorStatus = service.find('monitor')
+        monitorStatus = monitorStatus.text
+        if monitorStatus == "0":
+            list.append(notMonitored, name.text)
+            print("NOT MONITORED", name.text)
+        errorStatus = service.find('status_message')
+        #errorStatusText = errorStatus.text
+        if errorStatus != None:
+            #errorConditionsD[name.text]=[errorStatus.text]
+            #errorConditionsL
+
+
+print(errorConditions)
+for keys,values in errorConditions.items():
+    print(keys, values)
 
 #objend = obj.monit.server.httpd.address.cdata
 
 #@app.before_first_request
+#rootElem = parsedXML[0].getroot()
+
+
 
 @app.template_filter()
 def datetimefilter(value, format='%Y/%m/%d %H:%M'):
@@ -62,7 +89,7 @@ def backend():
 
 @app.route("/home")
 def home():
-    return render_template('base_template.html', failedServers = failedServers, title="Home - Main Server Overview")
+    return render_template('base_template.html', failedServers = failedServers, notMonitored = notMonitored, errorConditions = errorConditions, title="Home - Main Server Overview")
 
 @app.route("/about")
 def about():
