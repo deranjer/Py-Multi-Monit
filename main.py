@@ -42,28 +42,34 @@ for server in parsedXML:
     list.append(respondingServers, address.text)
 
 
-notMonitored = []
-errorConditionsL = {}
+notMonitoredD = {}
 errorConditionsD = {}
+fullServiceListD = {}
 for server in parsedXML:
     address = server.find('./server//httpd//')
     for service in server.findall('service'):
+        serviceType = service.attrib
         name = service.find('name')
         monitorStatus = service.find('monitor')
-        monitorStatus = monitorStatus.text
-        if monitorStatus == "0":
-            list.append(notMonitored, name.text)
-            print("NOT MONITORED", name.text)
+        status = service.find('status')
         errorStatus = service.find('status_message')
-        #errorStatusText = errorStatus.text
-        if errorStatus != None:
-            #errorConditionsD[name.text]=[errorStatus.text]
-            #errorConditionsL
+        if not errorStatus:
+            errorStatus = "None"
+        else:
+            errorStatus = errorStatus.text
+        if monitorStatus.text == "0": #If not monitored
+            #notMonitoredD[address.text] = [name.text, status.text, errorStatus.text]
+            notMonitoredD[address.text] = [address.text, name.text, status.text, errorStatus]
+
+        if errorStatus != "None" or status.text == "4608": #if it has an error message, or error code ##todo## (find error codes)
+            errorConditionsD[address.text] = [address.text, name.text, status.text, errorStatus]
+        fullServiceListD[address.text] = [address.text, serviceType[class], name.text, status.text, errorStatus]
 
 
-print(errorConditions)
-for keys,values in errorConditions.items():
-    print(keys, values)
+#for items,keys in errorConditionsD.items():
+#    print(items)
+#    print(keys[1])
+
 
 #objend = obj.monit.server.httpd.address.cdata
 
@@ -83,13 +89,13 @@ app.jinja_env.filters['datetimefilter'] = datetimefilter
 def template_test():
     return redirect("/home", code=302)
 
-@app.route("/backend")
-def backend():
-    return objjson
+@app.route("/services")
+def services():
+    return render_template('services_template.html', notMonitoredD = notMonitoredD, errorConditionsD = errorConditionsD, title="Full Service List")
 
 @app.route("/home")
 def home():
-    return render_template('base_template.html', failedServers = failedServers, notMonitored = notMonitored, errorConditions = errorConditions, title="Home - Main Server Overview")
+    return render_template('base_template.html', failedServers = failedServers, notMonitored = notMonitoredD, errorConditionsD = errorConditionsD, title="Home - Main Server Overview")
 
 @app.route("/about")
 def about():
@@ -98,7 +104,7 @@ def about():
 
 @app.route("/servers")
 def servers():
-    return render_template('server_template.html', title="Server List", respondingServers=respondingServers)
+    return render_template('server_template.html', title="Server List", respondingServers=respondingServers, failedServers=failedServers)
 
 
 if __name__ == '__main__':

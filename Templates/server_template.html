@@ -8,6 +8,17 @@
   {{ super() }}
 {% endblock %}
 {% block content %}
+ <h3>Failed Server List</h3>
+  <table class="table table-striped">
+      <tr>
+          <th>Server IP</th>
+      </tr>
+  {% for server in failedServers %}
+  <tr>
+      <td><img src="reddot.gif">{{server}}</td>
+  </tr>
+  {%endfor%}
+  </table>
   <h3>Responding Server List</h3>
   <table class="table table-striped">
       <tr>

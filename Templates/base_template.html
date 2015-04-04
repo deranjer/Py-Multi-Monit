@@ -16,11 +16,12 @@
     {% endfor %}
   {% endif %}
   </ul>
-  {% if errorConditions %}
+  {% if errorConditionsD %}
   <h3>Errors Reported: </h3>
-  <ul class="list-unstyled" id = "errorConditions">
-      {% for keys,values in errorConditions.items() %}
-      <li>{{keys}}-->{{values}}</li>
+  <ul class="list-unstyled" id = "errorConditionsD">
+      {% for keys, items in errorConditionsD.items() %}
+      <!--<li>{{keys}}&ndash;&gt;{{values}}</li>-->
+      <li>{{keys}}:{{items}}</li>
       {% endfor %}
   {% endif %}
   <br>

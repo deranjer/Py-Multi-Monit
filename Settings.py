@@ -1,4 +1,12 @@
 #This is the settings file
+#status guide to monit
+#0 = not monitoriing
+#1 = monitoring
+#2 = initializing
+
+#service type guides
+#2 = file
+#3 = process
 
 #Servers
 serverList = ["192.168.1.100", "192.168.1.151", "192.168.1.125"]
