@@ -1,3 +1,6 @@
+#CAUTION:  Be careful with the security of this file.
+#I made the assumption that all input from this file is SAFE.
+
 #This is the settings file
 #status guide to monit
 #0 = not monitoriing

@@ -1,0 +1,95 @@
+{% extends "layout.html" %}
+{% block title %}{{title}}{% endblock %}
+{% block head %}
+  {{ super() }}
+{% endblock %}
+{% block page %}{{title}}{% endblock %}
+{% block heading %}
+  {{ super() }}
+{% endblock %}
+{% block content %}
+{% for server,status in notMonitoredD.items() %}
+
+      {{server}}
+      {{status[1]}}
+      {{status[2]}}
+      {{status[3]}}
+
+  {%endfor%}
+{% if errorConditionsD %}
+ <h3>Failed Service List</h3>
+  <table class="table table-striped sortable">
+      <tr>
+          <td>Service ID</td>
+          <th>Server IP</th>
+          <th>Service Name</th>
+          <th>Status Code</th>
+          <th>Status Error Message</th>
+      </tr>
+  {% for server,status in errorConditionsD.items() %}
+  <tr>
+      <td><img style="margin: 0px 50px 0px 0px", src="{{ url_for('static', filename='Images/reddot.png') }}">{{server}}</td>
+      <td>{{status[0]}}</td>
+      <td>{{status[1]}}</td>
+      <td>{{status[2]}}</td>
+      <td>{{status[3]}}</td>
+  </tr>
+  {%endfor%}
+  </table>
+{% endif %}
+{% if notMonitoredD %}
+  <h3>Not Monitored List</h3>
+  <table class="table table-striped sortable">
+      <tr>
+          <td>Service ID</td>
+          <th>Server IP</th>
+          <th>Service Name</th>
+          <th>Status Code</th>
+          <th>Status Error Message</th>
+      </tr>
+  {% for server,status in notMonitoredD.items() %}
+  <tr>
+      <td><img style="margin: 0px 50px 0px 0px",  src="{{ url_for('static', filename='Images/reddot.gif') }}">{{server}}</td>
+      <td>{{status[0]}}</td>
+      <td>{{status[1]}}</td>
+      <td>{{status[2]}}</td>
+      <td>{{status[3]}}</td>
+  </tr>
+  {%endfor%}
+  </table>
+{% endif %}
+{% if fullServiceListD %}
+  <h3>Full Service List</h3>
+  <table class="table table-striped sortable">
+      <tr>
+          <th>Service ID</th>
+          <th>Direct Link (INTERNAL ONLY)</th>
+          <th>Service Name</th>
+          <th>Service Type</th>
+          <th>Server IP</th>
+          <th>Status</th>
+      </tr>
+  {% for server, service in fullServiceListD.items() %}
+  <tr>
+      {% if service[3] == "0" %}
+        <td><img style="margin: 0px 50px 0px 0px",  src="{{ url_for('static', filename='Images/greendot.gif') }}">{{server}}</td>
+      {% else %}
+        <td><img style="margin: 0px 50px 0px 0px",  src="{{ url_for('static', filename='Images/reddot.png') }}">{{server}}</td>
+      {% endif %}
+      <td>{{service[4]|safe}}</td>
+      <td>{{service[2]}}</td>
+      <td>{{service[1]}}</td>
+      <td>{{service[0]}}</td>
+      <td>{{service[3]}}</td>
+  </tr>
+  {%endfor%}
+  </table>
+{% endif %}
+  <br>
+  <br>
+  <br>
+  <!-- <p>Same list with a filter: {{ my_list|join(', ') }}</p> -->
+  {% block footer %}
+  {{super()}}
+  {% endblock %}
+{% endblock %}
