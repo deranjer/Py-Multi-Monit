@@ -4,7 +4,8 @@ import bs4
 import datetime
 import urllib
 import pprint
-import xml.etree.ElementTree as ET
+#import xml.etree.ElementTree as ET
+import xml.etree.cElementTree as ET
 from Settings import serverList
 from flask import Flask, render_template, redirect
 app = Flask(__name__)
@@ -25,52 +26,73 @@ for server in serverList: #generating server API URL's
 #URL = "http://192.168.1.100:2812/_status?format=xml"
 
 
-def infoRefresh():
+def parseServers():
     parsedXML = []
     failedServers = []
     for URL in APIURL:
         try:
             print("URL", URL)
             file = urllib.request.urlopen(URL) #opening the XML URL
-            list.append(parsedXML, ET.parse(file)) #Parsing to dict the XML file created
+            list.append(parsedXML, ET.parse(file)) #Parsing the XML file using Celementtree
         except:
-            list.append(failedServers, URL)
-
+            list.append(failedServers, URL) #if the server doesn't respond, add it to the failed server list
     respondingServers = []
+    count = 0 #defining the counter for the number of services per server.
     for server in parsedXML:
         address = server.find('./server//httpd//')
-        list.append(respondingServers, address.text)
+        list.append(respondingServers, address.text) #finding the IP address of each monit server
+        for service in server.findall('service'): #Counting the number of services per server
+            count +=1
+        list.append(respondingServers, count) ##todo fix this!!
 
-    id=0
-    notMonitoredD = {}
-    errorConditionsD = {}
+    return {'failedServers' : failedServers, 'respondingServers' : respondingServers, 'parsedXML' : parsedXML}
+
+def errorStatusF(service): #function to find out if there is an error status on a job
+    status = service.find('status')
+    errorStatus = service.find('status_message')
+    if errorStatus == None:
+        errorStatus = "None"
+    else:
+        errorStatus = errorStatus.text
+    return (errorStatus, status)
+
+
+def infoRefresh(): #called each page load, just reparses the XML to make sure nothing changed
+    parseServersResults = parseServers() #parsing all of the XML again...
+    id=0 #creating internal ID to sort lists by, etc.
+    notMonitoredD = {} #list of services that are "not monitored" by monit
+    errorConditionsD = {} #list of error condition services
     fullServiceListD = {}
-    for server in parsedXML:
+    for server in parseServersResults['parsedXML']:
         address = server.find('./server//httpd//')
         for service in server.findall('service'):
             serviceType = service.attrib
             name = service.find('name')
             monitorStatus = service.find('monitor')
-            status = service.find('status')
-            errorStatus = service.find('status_message')
-            #if not errorStatus:
-            if errorStatus == None:
-                errorStatus = "None"
-            else:
-                errorStatus = errorStatus.text
-            if monitorStatus.text == "0": #If not monitored
-                #notMonitoredD[address.text] = [name.text, status.text, errorStatus.text]
-                notMonitoredD[id] = [address.text, name.text, status.text, errorStatus]
+
+            errorStatus, status = errorStatusF(service) #finding an error status
 
             if errorStatus != "None" or status.text != "0": #if it has an error message, or error code ##todo## (find error codes)
                 errorConditionsD[id] = [address.text, name.text, status.text, errorStatus]
-            #print(serviceType['type'])
-            #serviceTypeClass = serviceType['type']
-            localLink = '<a href="http://%s:2812/%s">%s</a>' % (address.text, name.text, name.text)
+
+            if monitorStatus.text == "0": #If not monitored
+                notMonitoredD[id] = [address.text, name.text, status.text, errorStatus]
+            localLink = '<a href="http://%s:2812/%s">%s</a>' % (address.text, name.text, name.text) #link to internal server service
             fullServiceListD[id] = [address.text, serviceType['type'], name.text, status.text, localLink]
             id += 1 #internal ID for lists
             #print(fullServiceListD[address.text])
-    return {'notMonitoredD' : notMonitoredD, 'errorConditionsD': errorConditionsD, 'fullServiceListD' : fullServiceListD, 'failedServers' : failedServers, 'respondingServers' : respondingServers}
+    return {'notMonitoredD' : notMonitoredD, 'errorConditionsD': errorConditionsD, 'fullServiceListD' : fullServiceListD }
+
+
+def countServices():
+    parseServersResults = parseServers()
+    print("counting")
+    count = 0
+    for server in parseServersResults['parsedXML']:
+        address = server.find('./server//httpd//')
+        for service in server.findall('service'):
+            count +=1
+
 
 
 #for items,keys in errorConditionsD.items():
@@ -104,7 +126,8 @@ def services():
 @app.route("/home")
 def home():
     infoRefreshResults = infoRefresh()
-    return render_template('base_template.html', failedServers = infoRefreshResults['failedServers'], notMonitored = infoRefreshResults['notMonitoredD'], errorConditionsD = infoRefreshResults['errorConditionsD'], title="Home - Main Server Overview")
+    parseServersResults = parseServers()
+    return render_template('base_template.html', failedServers = parseServersResults['failedServers'], notMonitored = infoRefreshResults['notMonitoredD'], errorConditionsD = infoRefreshResults['errorConditionsD'], title="Home - Main Server Overview")
 
 @app.route("/about")
 def about():
@@ -113,8 +136,13 @@ def about():
 
 @app.route("/servers")
 def servers():
-    infoRefreshResults = infoRefresh()
-    return render_template('server_template.html', title="Server List", respondingServers=infoRefreshResults['respondingServers'], failedServers=infoRefreshResults['failedServers'])
+    parseServersResults = parseServers()
+    return render_template('server_template.html', title="Server List", respondingServers=parseServersResults['respondingServers'], failedServers=parseServersResults['failedServers'])
+
+@app.route('/servers/<serverIP>')
+def serverByIP(serverIP):
+    """todo get all services for that server"""
+    return render_template('server_by_ip_template.html', title=serverIP)
 
 
 if __name__ == '__main__':

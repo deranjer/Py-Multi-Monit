@@ -1,0 +1,11 @@
+How restarting works with monit
+
+        if ((s->start && s->stop) || s->restart)
+                StringBuffer_append(res->outputbuffer,
+                                    "<td><form method=POST action=%s>"
+                                    "<input type=hidden value='restart' name=action>"
+                                    "<input type=submit value='Restart service'></form></td>", s->name);
+
+
+Possible values: 0=filesystem, 1=directory, 2=file, 3=process, 4=remote host, 5=system, 6=fifo, 7=program
+monitorstate	The service monitoring state bitmap. Possible values (can be combined with logical OR): 0x0=off, 0x1=on, 0x2=initializing, 0x4=waiting
