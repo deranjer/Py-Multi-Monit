@@ -14,10 +14,15 @@
     {% for server in failedServers %}
     <li>{{server}}</li>
     {% endfor %}
+  {% else %}
+    <h3>  All Servers Responding </h3>
+    <hr></br>
   {% endif %}
+
   </ul>
   {% if errorConditionsD %}
-  <h3>Errors Reported: </h3>
+  <h3>Service Errors Reported: </h3>
+  <hr></br>
   <ul class="list-unstyled" id = "errorConditionsD">
       {% for keys, items in errorConditionsD.items() %}
       <!--<li>{{keys}}&ndash;&gt;{{values}}</li>-->

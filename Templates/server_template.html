@@ -23,16 +23,18 @@
   <table class="table table-striped sortable">
       <tr>
           <th>Server IP</th>
-          <th>Server Page</th>
-          <th>Server Local URL</th>
+          <th>Server Local URL (Internal Only)</th>
+          <th>Monit Version</th>
           <th>Total Services</th>
           <th>Services Down</th>
       </tr>
-  {% for server in respondingServers %}
+  {% for serverID, server in respondingServersD.items() %}
   <tr>
-      <td><img style="margin: 0px 50px 0px 0px", src="{{ url_for('static', filename='Images/greendot.gif') }}">{{server}}</td>
-      <td>12</td>
-      <td>12</td>
+      <td><img style="margin: 0px 50px 0px 0px", src="{{ url_for('static', filename='Images/greendot.gif') }}">{{server[0]}}</td>
+      <td>{{server[1]|safe}}</td>
+      <td>{{server[2]}}</td>
+      <td>{{server[3]}}</td>
+      <td>{{server[4]}}</td>
   </tr>
   {%endfor%}
   </table>

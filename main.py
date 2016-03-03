@@ -1,14 +1,13 @@
 __author__ = 'deranjer'
 
-import bs4
+#import bs4
 import datetime
 import urllib
-import pprint
-#import xml.etree.ElementTree as ET
-import xml.etree.cElementTree as ET
+#import pprint #used for printing XML trees
+import xml.etree.ElementTree as ET #cElemetTree is depreciated apparently
 from Settings import serverList
 from flask import Flask, render_template, redirect
-app = Flask(__name__)
+app = Flask(__name__, template_folder='Templates')
 
 
 #Generate list of servers from config file
@@ -36,16 +35,24 @@ def parseServers():
             list.append(parsedXML, ET.parse(file)) #Parsing the XML file using Celementtree
         except:
             list.append(failedServers, URL) #if the server doesn't respond, add it to the failed server list
-    respondingServers = []
-    count = 0 #defining the counter for the number of services per server.
+    respondingServersD = {}
+    id = 0 #internal ID for keyed list
     for server in parsedXML:
         address = server.find('./server//httpd//')
-        list.append(respondingServers, address.text) #finding the IP address of each monit server
+        localServerLink = '<a href="http://%s:2812">%s</a>' % (address.text, address.text) #link to internal server
+        serverRoot = server.find('./server')
+        monitVersion = serverRoot.find('version').text
+        count = 0 #defining the counter for the number of services per server.
+        errorCount = 0 # defining the number of services in error for each server.
         for service in server.findall('service'): #Counting the number of services per server
             count +=1
-        list.append(respondingServers, count) ##todo fix this!!
-
-    return {'failedServers' : failedServers, 'respondingServers' : respondingServers, 'parsedXML' : parsedXML}
+            status = service.find('status')
+            errorStatus = service.find('status_message')#todo status_message may not exist?
+            if errorStatus != None or status.text != "0":
+                errorCount += 1
+        respondingServersD[id] = [address.text, localServerLink, monitVersion, count, errorCount]
+        id += 1
+    return {'failedServers' : failedServers, 'respondingServersD' : respondingServersD, 'parsedXML' : parsedXML}
 
 def errorStatusF(service): #function to find out if there is an error status on a job
     status = service.find('status')
@@ -84,7 +91,7 @@ def infoRefresh(): #called each page load, just reparses the XML to make sure no
     return {'notMonitoredD' : notMonitoredD, 'errorConditionsD': errorConditionsD, 'fullServiceListD' : fullServiceListD }
 
 
-def countServices():
+def countServices(): #TODO Might not need this
     parseServersResults = parseServers()
     print("counting")
     count = 0
@@ -93,11 +100,6 @@ def countServices():
         for service in server.findall('service'):
             count +=1
 
-
-
-#for items,keys in errorConditionsD.items():
-#    print(items)
-#    print(keys[1])
 
 
 #objend = obj.monit.server.httpd.address.cdata
@@ -137,7 +139,11 @@ def about():
 @app.route("/servers")
 def servers():
     parseServersResults = parseServers()
-    return render_template('server_template.html', title="Server List", respondingServers=parseServersResults['respondingServers'], failedServers=parseServersResults['failedServers'])
+    respondingServersD=parseServersResults['respondingServersD']
+    print("HERE IS YOUR SHIT")
+    print(*respondingServersD, sep='\n')
+    #return render_template('server_template.html', title="Server List", respondingServers=parseServersResults['respondingServers'], failedServers=parseServersResults['failedServers'])
+    return render_template('server_template.html', title="Server List", respondingServersD=parseServersResults['respondingServersD'], failedServers=parseServersResults['failedServers'])
 
 @app.route('/servers/<serverIP>')
 def serverByIP(serverIP):
@@ -146,4 +152,4 @@ def serverByIP(serverIP):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='127.0.0.1', port=8080, debug=True)
