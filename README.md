@@ -1,3 +1,10 @@
+## Py-Multi-Monit
+
+Python web interface to monitor multiple monit instances
+Still under development
+The following is a data dump from a while ago when I set it up to test.
+
+
 python 3.3+ (for flask)
 
 flask version 0.10.1
