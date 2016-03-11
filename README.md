@@ -43,7 +43,7 @@ sudo apt-get install nginx
 
 
 nano /var/www/pymultimonit/pymultimonit_nginx.conf
-
+```
 server {
     listen      8080;
     server_name localhost;
@@ -56,7 +56,7 @@ server {
         uwsgi_pass unix:/var/www/pymultimonit/pymultimonit_uwsgi.sock;
     }
 }
-
+```
 
 
 sudo ln -s /var/www/pymultimonit/pymultimonit_nginx.conf /etc/nginx/conf.d/
