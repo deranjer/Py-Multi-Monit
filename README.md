@@ -1,8 +1,3 @@
-# Py-Multi-Monit
-Python web interface for managing multiple instances of monit.
-
-This is just a DUMP of information that I used once to set it up... you just need to know how to host a python app on nginx or apache.
-
 python 3.3+ (for flask)
 
 flask version 0.10.1
@@ -13,7 +8,7 @@ sudo apt-get install build-essential
 apt-get install python-dev
 
 
-#if don't have python 3.3+ in repos, install manually
+-if don't have python 3.3+ in repos, install manually
 
 wget --no-check-certificate  https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tgz
 
@@ -32,8 +27,6 @@ pyvenv-3.4 pymultimonitvenv
 . pymultimonitvenv/bin/activate
 
 
-# wget --no-check-certificate https://bootstrap.pypa.io/get-pip.py
-#python get-pip.py
 
 pip install --upgrade pip
 
@@ -45,7 +38,7 @@ cp -R /root/PyMonit/* /var/www/pymultimonit/
 
 sudo chown -R www-data:www-data /var/www/pymultimonit
 
-#if nginx is not installed:
+-if nginx is not installed:
 sudo apt-get install nginx
 
 
@@ -73,26 +66,26 @@ sudo /etc/init.d/nginx restart
 nano /var/www/pymultimonit/pymultimonit_uwsgi.ini
 
 [uwsgi]
-#application's base folder
+-application's base folder
 base = /var/www/pymultimonit
 
-#python module to import #name of python file
+-python module to import #name of python file
 app = main
 module = %(app)
 
 home = %(base)/pymultimonitvenv
 pythonpath = %(base)
 
-#socket file's location
+-socket file's location
 socket = /var/www/pymultimonit/%n.sock
 
-#permissions for the socket file
+-permissions for the socket file
 chmod-socket    = 666
 
-#the variable that holds a flask application inside the module imported at line #6
+-the variable that holds a flask application inside the module imported at line #6
 callable = app
 
-#location of log files
+-location of log files
 logto = /var/log/uwsgi/%n.log
 
 
@@ -104,13 +97,13 @@ sudo chown -R www-data:www-data /var/log/uwsgi
 
 uwsgi --ini /var/www/pymultimonit/pymultimonit_uwsgi.ini
 
-#TEst app, make sure it works
+-TEst app, make sure it works
 
 
 uwsgi --emperor "/var/www/pymultimonit/pymultimonit_uwsgi.ini"
 
 
-#TEst app again, make sure it works
+-TEst app again, make sure it works
 
 
 create the directories:
@@ -121,10 +114,10 @@ ln -s /var/www/pymultimonit/pymultimonit_uwsgi.ini /etc/uwsgi/apps-enabled
 
 
 
-#now we will create an init script so it starts on boot
+-now we will create an init script so it starts on boot
 
 nano /etc/init.d/emperor
-
+```bash
 #!/usr/bin/env bash
  
 ### BEGIN INIT INFO
@@ -311,7 +304,7 @@ case "$OP" in
         ;;
 esac
 exit 0
-
+```
 
 
 chmod +x /etc/init.d/emperor
