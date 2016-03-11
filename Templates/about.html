@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% block title %}{{title}}{% endblock %}
+{% block head %}
+  {{ super() }}
+{% endblock %}
+{% block page %}{{title}}{% endblock %}
+{% block heading %}
+  {{ super() }}
+{% endblock %}
+{% block content %}
+  Py-Multi-Monit is powered by python 3.
+  <br>
+  <br>
+  Py-Multi-Monit uses the Jinja2 templating engine.
+  <br>
+  <br>
+  Py-Multi-Monit used the Flask web framework.
+  <br>
+  <br>
+  Py-Multi-Monit used the bootstrap framework.
+  {% block footer %}
+  {{super()}}
+  {% endblock %}
+{% endblock %}
