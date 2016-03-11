@@ -133,8 +133,7 @@ def home():
 
 @app.route("/about")
 def about():
-    return render_template('base_template.html', my_string="Bar",
-        my_list=[12,13,14,15,16,17], title="About", current_time=datetime.datetime.now())
+    return render_template('about.html', title="About Py-Multi-Monit")
 
 @app.route("/servers")
 def servers():
