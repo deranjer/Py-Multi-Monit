@@ -21,16 +21,22 @@ wget --no-check-certificate  https://www.python.org/ftp/python/3.4.3/Python-3.4.
 
 
 tar -zxvf Python-3.4.3.tgz
+
 cd Python-3.4.3
+
 ./configure --with-zlib
+
 make
+
 make install
 
 sudo mkdir -p /var/www/pymultimonit
 
 cd /var/www/pymultimonit
 
+(or pyvenv)
 pyvenv-3.4 pymultimonitvenv
+
 . pymultimonitvenv/bin/activate
 
 
@@ -67,6 +73,7 @@ server {
 
 
 sudo ln -s /var/www/pymultimonit/pymultimonit_nginx.conf /etc/nginx/conf.d/
+
 sudo /etc/init.d/nginx restart
 
 
